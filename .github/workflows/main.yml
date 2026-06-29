@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test: #job-1: Build and test
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build Project
+        run: npm run build
+
+  notify-n8n-on-failure: #job-2: notify and self-heal
+    name: Emergency Response
+    needs: build-and-test
+    if: failure()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify n8n Webhook
+        run: |
+          curl -X POST "https://YOUR_N8N_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "run_id":"${{ github.run_id }}",
+              "repository":"${{ github.repository }}",
+              "branch":"${{ github.ref_name }}",
+              "commit":"${{ github.sha }}"
+            }'
