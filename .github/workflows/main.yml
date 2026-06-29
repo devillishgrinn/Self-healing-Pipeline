@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Notify n8n Webhook
         run: |
-          curl -X POST "https://YOUR_N8N_WEBHOOK_URL" \
+          curl -X POST "http://localhost:5678/webhook-test/b15ea6b2-8ff1-422f-be5f-e926a8402474" \
             -H "Content-Type: application/json" \
             -d '{
               "run_id":"${{ github.run_id }}",
